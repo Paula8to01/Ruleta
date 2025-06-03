@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruleta de Premios</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+
+    .ruleta-container {
+      width: 400px;
+      margin: 40px auto;
+    }
+
+    canvas {
+      border: 8px solid #444;
+      border-radius: 50%;
+      background: white;
+    }
+
+    #spinBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎁 Ruleta de Premios</h1>
+  
+  <div class="ruleta-container">
+    <canvas id="wheel" width="400" height="400"></canvas>
+  </div>
+  
+  <button id="spinBtn">Girar</button>
+  <div id="resultado"></div>
+
+  <script>
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spinBtn");
+    const resultado = document.getElementById("resultado");
+
+    const premios = ["Nada :(", "Camiseta", "Nada :(", "Sticker", "Nada :(", "Otro intento"];
+    const colors = ["#FFFFFF", "#4D96FF", "#FFFFFF", "#4D96FF", "#FFFFFF", "#4D96FF"];
+    const num = premios.length;
+    const angle = 2 * Math.PI / num;
+    let rotation = 0;
+
+    function drawWheel() {
+      for (let i = 0; i < num; i++) {
+        ctx.beginPath();
+        ctx.moveTo(200, 200);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.arc(200, 200, 200, i * angle, (i + 1) * angle);
+        ctx.lineTo(200, 200);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate(i * angle + angle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(premios[i], 180, 10);
+        ctx.restore();
+      }
+    }
+
+    drawWheel();
+
+    spinBtn.addEventListener("click", () => {
+      // Buscar todos los índices donde el premio sea "Nada :("
+      const indicesNada = premios
+        .map((p, i) => p === "Nada :(" ? i : -1)
+        .filter(i => i !== -1);
+
+      // Elegir uno al azar de los que tienen "Nada :("
+      const seleccionado = indicesNada[Math.floor(Math.random() * indicesNada.length)];
+
+      const vueltas = 6;
+      const gradosPorSegmento = 360 / num;
+      const anguloSeleccionado = 360 - (seleccionado * gradosPorSegmento + gradosPorSegmento / 2);
+
+      rotation = vueltas * 360 + anguloSeleccionado;
+
+      canvas.style.transition = 'transform 4s ease-out';
+      canvas.style.transform = `rotate(${rotation}deg)`;
+
+      setTimeout(() => {
+        resultado.textContent = `Resultado: ${premios[seleccionado]} Gracias por participar! Suerte la próxima vez!`;
+      }, 4000);
+    });
+  </script>
+</body>
+</html>
+
+
+
+ 
